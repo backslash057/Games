@@ -1,16 +1,16 @@
 CC := gcc
-CFLAGS :=  #-Wall -Wextra
-SDFLAGS := `sdl2-config --libs` -lSDL2_ttf -lm #-lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf
+CFLAGS := -lm  #-Wall -Wextra
+SDFLAGS := `sdl2-config --libs` -lSDL2_ttf 
 
-SRCS := main.c SDL_gfxPrimitives.c
+SRC := src
+BIN := bin
 EXE := sudoku
 
 compile:
-	@$(CC) $(SRCS) -o $(EXE) $(CFLAGS) $(SDFLAGS)
+	@$(CC)  $(SRC)/*.c -o bin/$(EXE) -I include  $(CFLAGS) $(SDFLAGS)
 
 run:
-	@./$(EXE)
-
+	@bin/$(EXE)
 	
 all:
 	compile
