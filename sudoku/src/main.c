@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "gui.h"
+#include "sudoku.h"
 
 int main(int argc, char* argv[]) {
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -33,6 +34,14 @@ int main(int argc, char* argv[]) {
 	
 	SDL_Event event;
 
+	Cell cells[9][9];
+	for(int i=0; i<9; i++){
+		for(int j=0; j<9; j++){
+			cells[i][j].num = 1;
+			cells[i][j].valid = 1;
+		}
+	}
+
 	int running = 1;
 	while(running) {
 		while(SDL_PollEvent(&event) != 0) {
@@ -59,35 +68,15 @@ int main(int argc, char* argv[]) {
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderFillRect(renderer, &mainRect);
 
-		/* Fll the cell, line, row and block if a cell is selected */
-		if(selected != NULL){
-			
-			SDL_SetRenderDrawColor(renderer, 237, 247, 255, 255);
-
-			SDL_Rect cellRect = {origin.x + selected->x*(CELL + LINE) + LINE, origin.y + selected->y*(CELL + LINE) + LINE, CELL, CELL};
-
-			SDL_Rect rowRect = {origin.x + LINE, origin.y + selected->y*(CELL + LINE)+LINE, width-LINE, CELL};
-			SDL_Rect colRect = {origin.x + selected->x*(CELL + LINE) + LINE , origin.y + LINE, CELL, height-LINE};
-
-			SDL_Point BStart = {selected->x - selected->x%3, selected->y - selected->y%3};
-			SDL_Rect blockRect = {origin.x + BStart.x*(LINE+CELL)+LINE, origin.y + BStart.y*(CELL+LINE)+LINE, 2*LINE+3*CELL, 2*LINE+3*CELL};
-
-			SDL_RenderFillRect(renderer, &rowRect);
-			SDL_RenderFillRect(renderer, &colRect);
-			SDL_RenderFillRect(renderer, &blockRect);
-
-			SDL_SetRenderDrawColor(renderer, 197, 207, 255, 255);
-			SDL_RenderFillRect(renderer, &cellRect);
-		}
 
 		/* Draw lines*/
-		drawLines(renderer, origin, CELL, LINE, width, height);
+		displayGrid(renderer, origin, CELL, LINE, selected, cells);
 
 		/* Display the UI */
 		for(int i = 0; i < 3; i++) {
 			for(int j = 0; j < 3; j++) {
 				SDL_Rect numRect = {gridRect.x + j*(numSize + numMargin), gridRect.y + i*(numSize + numMargin), numSize, numSize};
-				drawNumButton(renderer, numRect, i*3+j+1, 6);
+				drawNumButton(renderer, numRect, i*3+j+1, 9);
 			}
 		}
 
