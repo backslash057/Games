@@ -10,38 +10,28 @@ int main(int argc, char* argv[]) {
 	int CELL = 50, LINE = 2;
 	int width = 9*CELL + 10*LINE;
 	int height = width;
-	SDL_Point origin = {50, 50};
-
 	int gridWidth = 200, gridHeight = 250;
 	int numMargin = 10, numSize=60;
-
+	int btnWidth = 90, btnHeight = 40;
+	SDL_Point origin = {50, 50};
 	SDL_Rect mainRect = {origin.x, origin.y, width, height};
 	SDL_Point* selected = 0;
+	SDL_Rect gridRect = {origin.x + width + 20, origin.y + height - gridHeight, gridWidth, gridHeight};
+	SDL_Rect eraseBtnRect = {origin.x + width + 20, origin.y + height - btnHeight, btnWidth, btnHeight};
+	SDL_Rect solveBtnRect = {origin.x + width + 20 + gridWidth - btnWidth, origin.y + height - btnHeight, btnWidth, btnHeight};
+	SDL_Rect timeRect = {origin.x + width + 20 + gridWidth - btnWidth, origin.y, btnWidth, btnHeight};
 
-    SDL_Window* window = SDL_CreateWindow(
+	SDL_Window* window = SDL_CreateWindow(
         "Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		origin.x*2 + width + 30 + gridWidth,
 		height + origin.x*2, SDL_WINDOW_RESIZABLE
 	);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
-
-	SDL_Rect gridRect = {origin.x + width + 20, origin.y + height - gridHeight, gridWidth, gridHeight};
-
-	int btnWidth = 90, btnHeight = 40;
-	SDL_Rect eraseBtnRect = {origin.x + width + 20, origin.y + height - btnHeight, btnWidth, btnHeight};
-	SDL_Rect solveBtnRect = {origin.x + width + 20 + gridWidth - btnWidth, origin.y + height - btnHeight, btnWidth, btnHeight};
-	SDL_Rect timeRect = {origin.x + width + 20 + gridWidth - btnWidth, origin.y, btnWidth, btnHeight};
-	
 	SDL_Event event;
 
 	Cell cells[9][9];
-	for(int i=0; i<9; i++){
-		for(int j=0; j<9; j++){
-			cells[i][j].num = 1;
-			cells[i][j].valid = 1;
-		}
-	}
-
+	generateGrid(cells);
+	
 	int running = 1;
 	while(running) {
 		while(SDL_PollEvent(&event) != 0) {
