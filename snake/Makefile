@@ -1,6 +1,6 @@
 CC := gcc
-CFLAGS := $(shell sdl2-config --cflags --libs) #-Wall -Wextra
-LDFLAGS := $(shell sdl2-config --libs) #-lSDL2_image -lSDL2_ttf -lSDL2_mixer
+CFLAGS := #-Wall -Wextra
+LDFLAGS := -lmingw32 -lSDL2main -lSDL2 -lSDL2_ttf -lm -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 EXE := game
 
 
