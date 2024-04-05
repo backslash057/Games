@@ -41,4 +41,12 @@ Solve the sudoku, filling the empty cells
 */
 void solve(Cell cells[9][9]);
 
+/*
+Remove(set to 0) n values at random positions from grid
+
+\param grid The grid to unfill
+\param n The number of cell to remove
+*/
+void unfill(Cell grid[9][9], int n);
+
 #endif

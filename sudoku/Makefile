@@ -1,6 +1,6 @@
 CC := gcc
 CFLAGS :=  #-Wall -Wextra
-SDFLAGS := -lmingw32 -lSDL2main -lSDL2 -Dmain=SDL_main -lSDL2_ttf
+SDFLAGS :=  -lSDL2  -lSDL2_ttf -lm
 
 LIB := C:/msys64/mingw64/lib
 INCLUDE := C:/msys64/mingw64/include

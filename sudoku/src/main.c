@@ -29,8 +29,10 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_Event event;
 
-	Cell cells[9][9];
-	generateGrid(cells);
+	Cell grid[9][9];
+	generateGrid(grid);
+
+	unfill(grid, 40);
 	
 	int running = 1;
 	while(running) {
@@ -60,7 +62,7 @@ int main(int argc, char* argv[]) {
 
 
 		/* Draw lines*/
-		displayGrid(renderer, origin, CELL, LINE, selected, cells);
+		displayGrid(renderer, origin, CELL, LINE, selected, grid);
 
 		/* Display the UI */
 		for(int i = 0; i < 3; i++) {
