@@ -1,4 +1,8 @@
 #include <stdlib.h>
+#include <stdio.h>
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "gui.h"
 #include "sudoku.h"
@@ -15,7 +19,7 @@ int main(int argc, char* argv[]) {
 	int btnWidth = 90, btnHeight = 40;
 	SDL_Point origin = {50, 50};
 	SDL_Rect mainRect = {origin.x, origin.y, width, height};
-	SDL_Point* selected = 0;
+	SDL_Point* selected = NULL;
 	SDL_Rect gridRect = {origin.x + width + 20, origin.y + height - gridHeight, gridWidth, gridHeight};
 	SDL_Rect eraseBtnRect = {origin.x + width + 20, origin.y + height - btnHeight, btnWidth, btnHeight};
 	SDL_Rect solveBtnRect = {origin.x + width + 20 + gridWidth - btnWidth, origin.y + height - btnHeight, btnWidth, btnHeight};
@@ -26,29 +30,73 @@ int main(int argc, char* argv[]) {
 		origin.x*2 + width + 30 + gridWidth,
 		height + origin.x*2, SDL_WINDOW_RESIZABLE
 	);
+
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
 	SDL_Event event;
 
+	NumButton numGrid[9];
+	for(int i = 0; i < 3; i++) {
+		for(int j = 0; j < 3; j++) {
+			SDL_Rect temp = {gridRect.x + j*(numSize + numMargin), gridRect.y + i*(numSize + numMargin), numSize, numSize};
+			numGrid[i*3 + j].rect = temp;
+			numGrid[i*3 + j].num = i*3 + j + 1;
+			numGrid[i*3 + j].left = 9;
+		}
+	}
+
 	Cell grid[9][9];
 	generateGrid(grid);
-
 	unfill(grid, 40);
+
+	for(int i=0; i<9; i++) {
+		for(int j=0; j<9; j++) {
+			if(grid[i][j].num != 0) numGrid[grid[i][j].num - 1].left -= 1;
+		}
+	}
 	
 	int running = 1;
 	while(running) {
+
+
 		while(SDL_PollEvent(&event) != 0) {
 			if(event.type == SDL_QUIT) {
 				running = 0;
 			}
 			else if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button ==1) {
-				if((origin.x < event.button.x && event.button.x < origin.x + width &&
-					origin.y < event.button.y && event.button.y < origin.y + height)) {
-					
-					SDL_Point coords;
-					coords.x = (event.button.x - origin.x - LINE) / (CELL + LINE);
-					coords.y = (event.button.y - origin.y - LINE) / (CELL + LINE);
+				if(collides(mainRect, event.button.x, event.button.y)) {
+					if(selected == NULL) selected = malloc(sizeof(SDL_Point));
 
-					selected = &coords;
+					selected->x = (event.button.x - origin.x - LINE) / (CELL + LINE);
+					selected->y = (event.button.y - origin.y - LINE) / (CELL + LINE);
+				}
+				else if(collides(gridRect, event.button.x, event.button.y)) {
+					int i=0;
+					while(i<9) {
+						if(collides(numGrid[i].rect, event.button.x, event.button.y)) break;
+						i++;
+					}
+
+					if(i<9) {
+						// actions on numGrid[i+1]
+						if(selected != NULL && numGrid[i].left != 0) {
+							int x=selected->x;
+							int y=selected->y;
+
+							int result = play(grid, x, y, i+1);
+
+							if(result > 0) {
+								numGrid[result-1].left++;
+								numGrid[i].left--;
+							}
+							else if(result == 0) numGrid[i].left--;
+						}
+					}
+					else if(collides(solveBtnRect, event.button.x, event.button.y)) {
+						printf("Solve\n");
+					}
+					else if(collides(eraseBtnRect, event.button.x, event.button.y)) {
+						printf("Erase\n");
+					}
 				}
 			}
 		}
@@ -60,16 +108,12 @@ int main(int argc, char* argv[]) {
 		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 		SDL_RenderFillRect(renderer, &mainRect);
 
-
 		/* Draw lines*/
 		displayGrid(renderer, origin, CELL, LINE, selected, grid);
 
 		/* Display the UI */
-		for(int i = 0; i < 3; i++) {
-			for(int j = 0; j < 3; j++) {
-				SDL_Rect numRect = {gridRect.x + j*(numSize + numMargin), gridRect.y + i*(numSize + numMargin), numSize, numSize};
-				drawNumButton(renderer, numRect, i*3+j+1, 9);
-			}
+		for(int i = 0; i < 9; i++) {
+			drawNumButton(renderer, numGrid[i]);
 		}
 
 		drawButton(renderer, eraseBtnRect, "Erase");
