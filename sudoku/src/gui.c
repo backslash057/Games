@@ -2,24 +2,24 @@
 #include "sudoku.h"
 #include <stdio.h>
 
-void drawNumButton(SDL_Renderer* renderer, SDL_Rect rect, int main, int sec) {
+void drawNumButton(SDL_Renderer* renderer, NumButton btn) {
     Uint32 bg = 0xFBFCFDFF;
     Uint32 border = 0x3B3B3BFF;
     SDL_Color fg =  {59, 59, 59, 255};
     SDL_Color secFg =  {159, 159, 159, 255};
     
     SDL_Surface *surface = SDL_CreateRGBSurface(
-        0, rect.w, rect.h, 32,
+        0, btn.rect.w, btn.rect.h, 32,
         0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
     );
-    roundedRectangleColor(surface, 0, 0, rect.w-1, rect.h-1, 3, border);
-    roundedBoxColor(surface, 1, 1, rect.w-2, rect.h-2, 3, bg);
+    roundedRectangleColor(surface, 0, 0, btn.rect.w-1, btn.rect.h-1, 3, border);
+    roundedBoxColor(surface, 1, 1, btn.rect.w-2, btn.rect.h-2, 3, bg);
 
     TTF_Font* mainFont = TTF_OpenFont("assets/fonts/Arial.ttf", 30);
     TTF_Font* secFont = TTF_OpenFont("assets/fonts/calibri-leger.ttf", 18);
 
-	char mainChar[] = {main + '0', '\0'};
-	char secChar[] = {sec + '0', '\0'};
+	char mainChar[] = {btn.num + '0', '\0'};
+	char secChar[] = {btn.left + '0', '\0'};
     SDL_Surface* mainTextSurface = TTF_RenderText_Blended(mainFont, mainChar, fg);
     SDL_Surface* secTextSurface = TTF_RenderText_Blended(secFont, secChar, secFg);
 
@@ -31,7 +31,7 @@ void drawNumButton(SDL_Renderer* renderer, SDL_Rect rect, int main, int sec) {
 
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    SDL_RenderCopy(renderer, texture, NULL, &btn.rect);
 
     SDL_FreeSurface(surface);
 	SDL_FreeSurface(mainTextSurface);
@@ -122,15 +122,20 @@ void displayGrid(SDL_Renderer* renderer, SDL_Point origin, int CELL, int LINE, S
 
     TTF_Font* font = TTF_OpenFont("assets/fonts/Arial.ttf", 35);
 
-    SDL_Color normal = {0, 0, 0, 255};
+    SDL_Color default_ = {0, 0, 0, 255};
     SDL_Color invalid = {250, 100, 100, 255};
+    SDL_Color normal = {100, 100, 255, 255};
+    SDL_Color filled = {100, 255, 100, 255};
+
+    SDL_Color colors[4] = {invalid, normal, default_, filled};
 
     for(int i=0; i<9; i++){
         for(int j=0; j<9; j++){
             if(cells[i][j].num == 0) continue;
 
             char num[2] = {cells[i][j].num + '0', '\0'};
-            SDL_Surface* number = (cells[i][j].valid)? TTF_RenderText_Blended(font, num, normal) : TTF_RenderText_Blended(font, num, invalid);
+
+            SDL_Surface* number = TTF_RenderText_Blended(font, num, colors[cells[i][j].valid]);
             
             SDL_Rect rect = {LINE+i*(LINE+CELL) + (CELL/2-number->w/2), LINE+j*(CELL+LINE) + (CELL/2-number->h/2), CELL, CELL};
 
@@ -147,4 +152,12 @@ void displayGrid(SDL_Renderer* renderer, SDL_Point origin, int CELL, int LINE, S
     TTF_CloseFont(font);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
+}
+
+
+int collides(SDL_Rect rect, int x, int y) {
+    return (
+        rect.x < x  && x < rect.x + rect.w &&
+        rect.y < y && y < rect.y + rect.h
+    );
 }
