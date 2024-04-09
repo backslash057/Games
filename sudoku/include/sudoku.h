@@ -8,7 +8,8 @@
 
 typedef struct cell {
     int num;
-    int valid;
+
+    int valid; /* 0 means invalid, 1 means valid, 2 means pregenerated(unfillable)*/
 } Cell;
 
 
@@ -48,5 +49,10 @@ Remove(set to 0) n values at random positions from grid
 \param n The number of cell to remove
 */
 void unfill(Cell grid[9][9], int n);
+
+
+
+
+int play(Cell grid[9][9], int x, int y, int value);
 
 #endif

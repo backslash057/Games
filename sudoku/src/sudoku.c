@@ -1,8 +1,9 @@
 #include "sudoku.h"
 
+#define UNFILLABLE 2
 
-Cell CreateCell(int num) {
-    Cell cell = {num, 1};
+Cell cell_(int num, int valid) {
+    Cell cell = {num, valid};
     return cell;
 }
 
@@ -20,7 +21,7 @@ void shuffle(int vect[9]) {
 
 int isInColumn(Cell grid[9][9], int n, int x){
     for(int y=0; y<9; y++) {
-        if(grid[y][x].num == n) return 1;
+        if(grid[x][y].num == n) return 1;
     }
 
     return 0;
@@ -28,7 +29,7 @@ int isInColumn(Cell grid[9][9], int n, int x){
 
 int isInRow(Cell grid[9][9], int n, int y){
     for(int x=0; x<9; x++) {
-        if(grid[y][x].num == n) return 1;
+        if(grid[x][y].num == n) return 1;
     }
 
     return 0;
@@ -37,7 +38,7 @@ int isInRow(Cell grid[9][9], int n, int y){
 int isInCell(Cell grid[9][9], int n, int x, int y){
     for(int i=0; i<3; i++) {
         for(int j=0; j<3; j++){
-            if(grid[y-y%3+j][x-x%3+i].num==n) return 1;
+            if(grid[x-x%3+i][y-y%3+j].num==n) return 1;
             //printf("(%d %d) -> (%d %d)\n", x, y, x-x%3+i, y-y%3+j);
         }
     }
@@ -62,20 +63,20 @@ int fillRemaining(Cell grid[9][9], int x, int y)
         y += 1;
     }
 
-    if(grid[y][x].num != 0) return fillRemaining(grid, x+1, y);
+    if(grid[x][y].num != 0) return fillRemaining(grid, x+1, y);
 
     int vect[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     shuffle(vect);
 
     for(int i=0; i<9; i++) {
         if(isValid(grid, vect[i], x, y)) {
-            grid[y][x].num = vect[i];
+            grid[x][y] = cell_(vect[i], UNFILLABLE);
 
             if(fillRemaining(grid, x+1, y)){
                 return 1;
             }
 
-            grid[y][x].num = 0;
+            grid[x][y] = cell_(0, UNFILLABLE);
         }
     }
     return 0;
@@ -91,7 +92,7 @@ void generateGrid(Cell grid[9][9]){
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                grid[i+3*k][j+3*k] = CreateCell(vect[i*3+j]);
+                grid[i+3*k][j+3*k] = cell_(vect[i*3+j], UNFILLABLE);
             } 
         }
     }
@@ -102,7 +103,7 @@ void generateGrid(Cell grid[9][9]){
         start = (y/3 + 1)*3;
         for(int l=0; l<6; l++) {
             x = (start+l)%9;
-            grid[x][y] = CreateCell(0);
+            grid[x][y] = cell_(0, UNFILLABLE);
         }
     }
 
@@ -132,8 +133,23 @@ void unfill(Cell grid[9][9], int n) {
         }
 
         temp[idMax] = 0;
-        grid[idMax/9][idMax%9].num = 0;
+        grid[idMax/9][idMax%9] = cell_(0, 1);
     }
+}
+
+int play(Cell grid[9][9], int x, int y, int value) {
+    
+    if(grid[x][y].valid != UNFILLABLE && grid[x][y].num != value) {
+        int previous = grid[x][y].num;
+
+        grid[x][y].valid = isValid(grid, value, x, y);
+        grid[x][y].num = value;
+
+        return previous;
+    }
+
+
+    return -1;
 }
 
 /*
