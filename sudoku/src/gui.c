@@ -120,7 +120,7 @@ void displayGrid(SDL_Renderer* renderer, SDL_Point origin, int CELL, int LINE, S
         0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF
     );
 
-    TTF_Font* font = TTF_OpenFont("assets/fonts/Arial.ttf", 35);
+    TTF_Font* font = TTF_OpenFont("assets/fonts/CascadiaMono.ttf", 35);
 
     SDL_Color default_ = {0, 0, 0, 255};
     SDL_Color invalid = {250, 100, 100, 255};
@@ -135,7 +135,7 @@ void displayGrid(SDL_Renderer* renderer, SDL_Point origin, int CELL, int LINE, S
 
             char num[2] = {cells[i][j].num + '0', '\0'};
 
-            SDL_Surface* number = TTF_RenderText_Blended(font, num, colors[cells[i][j].valid]);
+            SDL_Surface* number = TTF_RenderText_Blended(font, num, colors[cells[i][j].state]);
             
             SDL_Rect rect = {LINE+i*(LINE+CELL) + (CELL/2-number->w/2), LINE+j*(CELL+LINE) + (CELL/2-number->h/2), CELL, CELL};
 
@@ -154,10 +154,37 @@ void displayGrid(SDL_Renderer* renderer, SDL_Point origin, int CELL, int LINE, S
     SDL_DestroyTexture(texture);
 }
 
+void drawTime(SDL_Renderer* renderer, SDL_Rect rect, int time) {
+    TTF_Font* font = TTF_OpenFont("assets/fonts/Arial.ttf", 35);
+    SDL_Color color = {0, 0, 0, 255};
+
+    char* t = timeToText(time);
+    SDL_Surface* textsurface = TTF_RenderText_Blended(font, t, color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textsurface);
+
+    SDL_Rect dest = {rect.x + rect.w - textsurface->w, rect.y, textsurface->w, textsurface->h};
+    SDL_RenderCopy(renderer, texture, NULL, &dest);
+    TTF_CloseFont(font);
+    SDL_FreeSurface(textsurface);
+}
+
 
 int collides(SDL_Rect rect, int x, int y) {
     return (
         rect.x < x  && x < rect.x + rect.w &&
         rect.y < y && y < rect.y + rect.h
     );
+}
+
+char* timeToText(int time) {
+    char *t = malloc(sizeof(char)*6);
+
+    t[0] = (char) (time/600 + '0');
+    t[1] = (char) ((time/60)%10 + '0');
+    t[2] = ':';
+    t[3] = (char) ((time%60)/10 + '0');
+    t[4] = (char) ((time%60)%10 + '0');
+    t[5] = '\0';
+
+    return t;
 }
