@@ -9,7 +9,7 @@
 typedef struct cell {
     int num;
 
-    int valid; /* 0 means invalid, 1 means valid, 2 means pregenerated(unfillable)*/
+    int state; /* 0 means invalid, 1 means valid, 2 means pregenerated(unfillable)*/
 } Cell;
 
 
@@ -25,7 +25,7 @@ Randomly shuffle a 9 integers vector
 
 \param vect The vector to shuffle
 */
-void shuffle(int vect[9]);
+void shuffle(int *vect, int size);
 
 /*
 Generate a randomly generated solvable grid of sudoku with n missing cells
@@ -48,11 +48,13 @@ Remove(set to 0) n values at random positions from grid
 \param grid The grid to unfill
 \param n The number of cell to remove
 */
-void unfill(Cell grid[9][9], int n);
-
-
+int* unfill(Cell grid[9][9], int n);
 
 
 int play(Cell grid[9][9], int x, int y, int value);
+
+int erase(Cell grid[9][9], int x, int y);
+
+int updateGrid(Cell grid[9][9]);
 
 #endif

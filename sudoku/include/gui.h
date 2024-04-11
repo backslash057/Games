@@ -26,4 +26,8 @@ int rectPointcollides(SDL_Rect rect, SDL_Point point);
 
 int collides(SDL_Rect rect, int x, int y);
 
+void drawTime(SDL_Renderer* renderer, SDL_Rect rect, int time);
+
+char* timeToText(int time);
+
 #endif
