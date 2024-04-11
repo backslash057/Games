@@ -1,17 +1,15 @@
 #include "sudoku.h"
+#include "constants.h"
 
-#define UNFILLABLE 2
-
-Cell cell_(int num, int valid) {
-    Cell cell = {num, valid};
+Cell cell_(int num, int state) {
+    Cell cell = {num, state};
     return cell;
 }
 
-
-void shuffle(int vect[9]) {
+void shuffle(int *vect, int size) {
     int r, temp;
-    for(int i=0; i<9; i++) {
-        r = rand()%9;
+    for(int i=0; i<size; i++) {
+        r = rand()%size;
 
         temp = vect[i];
         vect[i] = vect[r];
@@ -39,7 +37,6 @@ int isInCell(Cell grid[9][9], int n, int x, int y){
     for(int i=0; i<3; i++) {
         for(int j=0; j<3; j++){
             if(grid[x-x%3+i][y-y%3+j].num==n) return 1;
-            //printf("(%d %d) -> (%d %d)\n", x, y, x-x%3+i, y-y%3+j);
         }
     }
     
@@ -57,7 +54,6 @@ int isValid(Cell grid[9][9], int n, int x, int y) {
 int fillRemaining(Cell grid[9][9], int x, int y)
 {
     if(x >= 9 && y >= 8) return 1;
-
     if(x>=9) {
         x = 0;
         y += 1;
@@ -66,7 +62,7 @@ int fillRemaining(Cell grid[9][9], int x, int y)
     if(grid[x][y].num != 0) return fillRemaining(grid, x+1, y);
 
     int vect[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    shuffle(vect);
+    shuffle(vect, 9);
 
     for(int i=0; i<9; i++) {
         if(isValid(grid, vect[i], x, y)) {
@@ -75,7 +71,6 @@ int fillRemaining(Cell grid[9][9], int x, int y)
             if(fillRemaining(grid, x+1, y)){
                 return 1;
             }
-
             grid[x][y] = cell_(0, UNFILLABLE);
         }
     }
@@ -88,7 +83,7 @@ void generateGrid(Cell grid[9][9]){
     // Fill the 3 diagonal blocks
     for (int k = 0; k < 3; k++){
         int vect[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        shuffle(vect);
+        shuffle(vect, 9);
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
@@ -112,167 +107,64 @@ void generateGrid(Cell grid[9][9]){
     
 }
 
-void unfill(Cell grid[9][9], int n) {
+int* unfill(Cell grid[9][9], int n) {
     /*
-        This code is only for avoiding the unknown complexity and 
-        uncontrolable time to generate the random indices to remove from
-        the grid
+        This code generate fill and shuffle a 81 int vector. The first n values are
+        unfilled from the cells grid. The generic method for this is to generate
+        indices until n different values are reached but the disadvantage is the
+        variable time complexity and the possible infinite loop.
     */
+    int *unfilled = malloc(sizeof(int)*8);
+    for(int i=0; i<9; i++) unfilled[i]=0;
+
     int temp[81];
-    for(int i=0; i<81; i++) {
-        temp[i] = rand()%1000;
-    }
+    for(int i=0; i<81; i++) temp[i] = i;
+    shuffle(temp, 81);
 
-    int idMax;
     for(int i=0; i<n; i++) {
-        idMax = 0;
-        for(int j=0; j<81; j++) {
-            if(temp[idMax] < temp[j]) {
-                idMax = j;
-            }
-        }
-
-        temp[idMax] = 0;
-        grid[idMax/9][idMax%9] = cell_(0, 1);
+        unfilled[grid[temp[i]/9][temp[i]%9].num - 1] += 1;
+        grid[temp[i]/9][temp[i]%9] = cell_(0, NORMAL);
     }
+
+    return unfilled;
 }
 
 int play(Cell grid[9][9], int x, int y, int value) {
     
-    if(grid[x][y].valid != UNFILLABLE && grid[x][y].num != value) {
+    if(grid[x][y].state != UNFILLABLE && grid[x][y].num != value) {
         int previous = grid[x][y].num;
-
-        grid[x][y].valid = isValid(grid, value, x, y);
         grid[x][y].num = value;
 
-        return previous;
-    }
+        updateGrid(grid);
 
+        return previous;   
+    }
 
     return -1;
 }
 
-/*
-    - Fill the diagonal blocks
-    - Fill the orther cells block per block
 
-void generateGrid(Cell grid[9][9]){
-    srand(time(NULL));
+int erase(Cell grid[9][9], int x, int y) {
+    if(grid[x][y].state == UNFILLABLE) return -1;
 
-    // Fill the 3 diagonal blocks
-    for (int k = 0; k < 3; k++){
-        int vect[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        shuffle(vect);
+    int value = grid[x][y].num;
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                grid[i+3*k][j+3*k] = CreateCell(vect[i*3+j]);
-            }
-        }
-    }
+    grid[x][y].num = 0;
+    grid[x][y].state = 1;
 
-    // Fill the other cells
-    int start, x;
-    for(int y=0; y<9; y++){
-        start = (y/3 + 1)*3;
-        for(int l=0; l<6; l++) {
-            x = (start+l)%9;
-            grid[x][y] = CreateCell(0);
-        }
-    }
-
-    // Fill the othe cells
-    int y;
-    for(int a=0; a<3; a++){
-        for(int b=1; b<3; b++) {
-            int k = (a+b)%3;
-
-            for(int i=0; i<3; i++) {
-                for(int j=0; j<3; j++) {
-                    x = k*3 + i;
-                    y = a*3 + j;
-                    
-                    int vect[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-                    shuffle(vect);
-
-                    int index=0;
-                    while(index < 9) {
-                        if(
-                            !isInColumn(grid, vect[index], x) &&
-                            !isInRow(grid, vect[index], y) &&
-                            !isInCell(grid, vect[index], x, y)
-                        ) break;
-                        else index++;
-                    }
-
-                    if(index < 9){
-                        grid[x][y] = CreateCell(vect[index]);
-                    }
-                    else {
-                        grid[x][y] = CreateCell(0);
-                    }
-
-                }
-            }
-            printf("\n");
-        }
-    }  
+    updateGrid(grid);
+    return 0;    
 }
-*/
 
+int updateGrid(Cell grid[9][9]) {
+    for(int x=0; x<9; x++){
+        for(int y=0; y<9; y++) {
+            if(grid[x][y].state == UNFILLABLE) continue;
 
-/*
-    - Fill the diagonal blocks
-    - Fill the orther cells line per line
-
-void generateGrid(Cell grid[9][9]){
-    srand(time(NULL));
-
-    // Fill the 3 diagonal blocks
-    for (int k = 0; k < 3; k++){
-        int vect[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        shuffle(vect);
-
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                grid[i+3*k][j+3*k] = CreateCell(vect[i*3+j]);
-            }
-        }
-    }
-
-    // Fill the other cells
-    int start, x;
-    for(int y=0; y<9; y++){
-        start = (y/3 + 1)*3;
-        for(int l=0; l<6; l++) {
-            x = (start+l)%9;
-            grid[x][y] = CreateCell(0);
-        }
-    }
-
-    // Fill the othe cells
-    for(int y=0; y<9; y++){
-        start = (y/3 + 1)*3;
-        
-        for(int l=0; l<6; l++) {
-            x = (start+l)%9;
-
-            int vect[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-            shuffle(vect);
-
-            int index=0;
-            while(index < 9) {
-                if(
-                    !isInColumn(grid, vect[index], x) &&
-                    !isInRow(grid, vect[index], y) &&
-                    !isInCell(grid, vect[index], x, y)
-                ) break;
-                else index++;
-            }
-
-            grid[x][y] = (index < 9)? CreateCell(vect[index]), CreateCell(0);
+            int temp = grid[x][y].num;
+            grid[x][y].num = 0;
+            grid[x][y].state = isValid(grid, temp, x, y);
+            grid[x][y].num = temp;
         }
     }
 }
-
-*/
