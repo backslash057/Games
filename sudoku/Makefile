@@ -15,6 +15,9 @@ compile:
 run:
 	@bin/$(EXE)
 	
+debug:
+	@gdb bin/$(EXE)
+
 all:
 	compile
 	run
