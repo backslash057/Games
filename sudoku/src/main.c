@@ -73,7 +73,9 @@ int main(int argc, char* argv[]) {
 						(event.button.x - numGridRect.x) % (numSize + numGap) < numSize && 
 					    (event.button.y - numGridRect.y) % (numSize + numGap) < numSize)){
 
+						
 						selectedNum = (event.button.x-numGridRect.x)/(numSize+numGap)+(event.button.y-numGridRect.y)/(numSize+numGap)*3+1;
+						printf("%d\n", selectedNum);
 						if(numGrid[selectedNum].left != 0) {
 							int result = play(grid, selected->x, selected->y, selectedNum);
 							if(result > 0) numGrid[result-1].left++;
