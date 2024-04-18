@@ -57,6 +57,22 @@ void generateGrid(Block **grid, int m, int n, int originX, int originY, int coun
 }
 
 
+void expand(Block **grid, int m, int n, int x, int y) {
+	grid[x][y].revealed = 1;
+
+	if(grid[x][y].data == 0) {
+		if((x>=1 && y>=1 && grid[x-1][y-1].revealed==0))expand(grid, m, n, x-1, y-1);
+		if((y>=1 && grid[x][y-1].revealed==0))expand(grid, m, n, x, y-1);
+		if(x+1<m && y>=1 && grid[x+1][y-1].revealed==0) expand(grid, m, n, x+1, y-1);
+		if(x>=1 && grid[x-1][y].revealed==0) expand(grid, m, n, x-1, y);
+		if(x+1<m && grid[x+1][y].revealed==0) expand(grid, m, n, x+1, y);
+		if(x>=1 && y+1<n && grid[x-1][y+1].revealed==0) expand(grid, m, n, x-1, y+1);
+		if(y+1<n && grid[x][y+1].revealed==0) expand(grid, m, n, x, y+1);
+		if(x+1<m && y+1<n && grid[x+1][y+1].revealed==0) expand(grid, m, n, x+1, y+1);
+	}
+}
+
+
 int main(int argc, char *argv[]) {
 	int width=1100, height=900, barHeight=60, btnWidth=150, btnHeight=40;
 	int m=9, n=9, x, y;
@@ -66,28 +82,30 @@ int main(int argc, char *argv[]) {
 	SDL_Rect DifficultyBtnRect = {10, barHeight/2-btnHeight/2, btnWidth, btnHeight};
 	SDL_Rect dropBtnRect = {10 + btnWidth, barHeight/2-btnHeight/2, btnHeight, btnHeight};
 	SDL_Rect helpBtnRect = {10, barHeight + 10, 45, 45};
-	SDL_Rect gridRect = {width/2 - m*32, (height+barHeight)/2-n*32, m*64, n*64};
+	SDL_Rect gridRect = {width/2 - 288, (height+barHeight)/2-288, 576, 576};
 
-	// SDL_Init(SDL_INIT_VIDEO);
-	// IMG_Init(IMG_INIT_PNG);
+	SDL_Init(SDL_INIT_VIDEO);
+	IMG_Init(IMG_INIT_PNG);
 	SDL_Window* window = SDL_CreateWindow(
 		"Minesweeper",
 		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 		width, height,
-		SDL_WINDOW_SHOWN
+		SDL_WINDOW_RESIZABLE
 	);
 	SDL_Renderer* renderer = SDL_CreateRenderer(window, 0, -1);
 	SDL_Event event;
 
 	SDL_Surface* dropSurface = IMG_Load("assets/down-chevron.png");
 	SDL_Surface* helpSurface = IMG_Load("assets/question_.png");
+	SDL_Surface* flagSurface = IMG_Load("assets/flagged.png");
+	SDL_Surface* doubtSurface = IMG_Load("assets/doubting.png");
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, dropSurface);
 	SDL_Texture* helpTexture = SDL_CreateTextureFromSurface(renderer, helpSurface);
 
 	Block **grid;
 	grid = malloc(sizeof(Block*)*m);
 	for(int i=0; i<m; i++) grid[i] = (Block*) malloc(sizeof(Block)*n);
-	// generateGrid(grid, m, n, 4, 4, 10);
+	generateGrid(grid, m, n, 4, 4, 10);
 
 	SDL_Surface* surface = SDL_CreateRGBSurface(
 		0, m*64, n*64, 32,
@@ -114,7 +132,9 @@ int main(int argc, char *argv[]) {
 			if(event.type == SDL_QUIT) running=0;
 			else if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button==1){
 				if(collides(gridRect, event.button.x, event.button.y)) {
-					x = (event.button.x-gridRect.x)/64, y = (event.button.y-gridRect.y)/64;
+					x = (event.button.x-gridRect.x)/64;
+					y = (event.button.y-gridRect.y)/64;
+
 					if(!generated) {
 						generated =1;
 						generateGrid(grid, m, n, x, y, 10);
@@ -122,25 +142,31 @@ int main(int argc, char *argv[]) {
 					else {
 						
 					}
-					grid[x][y].revealed = 1;
+					expand(grid, m, n, x, y);
+				}
+			}
+			else if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button==3){
+				if(collides(gridRect, event.button.x, event.button.y)) {
+					x = (event.button.x-gridRect.x)/64;
+					y = (event.button.y-gridRect.y)/64;
+					
+					grid[x][y].revealed = 2;
 				}
 			}
 		}
 
 		for(int i=0; i<n; i++) {
 			for(int j=0; j<n; j++) {
-				printf("%d ", grid[i][j].data);
-				// SDL_Rect rect = {i*64, j*64, 64, 64};
+				SDL_Rect rect = {i*64, j*64, 64, 64};
 
-				// if(generated && grid[i][j].revealed && grid[i][j].data >=0) {
-				// 	SDL_BlitSurface(numsSurface[grid[i][j].data], NULL, surface, &rect);
-				// }
-				// else SDL_BlitSurface(tileSurface, NULL, surface, &rect);
+				if(generated && grid[i][j].revealed==1 && grid[i][j].data >=0) {
+					SDL_BlitSurface(numsSurface[grid[i][j].data], NULL, surface, &rect);
+				}
+				else if(grid[i][j].revealed==2) SDL_BlitSurface(flagSurface, NULL, surface, &rect);
+				else SDL_BlitSurface(tileSurface, NULL, surface, &rect);
 			}
-			printf("\n");
 		}
 
-		
 		SDL_Texture* gridTexture = SDL_CreateTextureFromSurface(renderer, surface);
 
 		SDL_SetRenderDrawColor(renderer, 50, 98, 168, 255);
