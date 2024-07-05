@@ -1,4 +1,4 @@
-#include "gui.h"
+
 #include "sudoku.h"
 #include <stdio.h>
 

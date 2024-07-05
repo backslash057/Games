@@ -1,8 +1,8 @@
 CC := gcc
-CFLAGS := #-Wall -Wextra
+CFLAGS := $(sdl2-config --cflags) #-Wall -Wextra
 LDFLAGS := -lSDL2 -lSDL2_image -lm
 EXE := bin/mine
-SRC :=  src/main.c  #src/SDL_gfxPrimitives.c
+SRC :=  src/main.c
 HEADERS := include
 
 compile:
