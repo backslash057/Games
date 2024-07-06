@@ -24,7 +24,7 @@ typedef struct grid_ {
 	Cell** cells;
 } Grid;
 
-typedef struct Keyboard_ {
+typedef struct keyboard_ {
 	int rowCount;
 	int *colCounts;
 
@@ -33,9 +33,9 @@ typedef struct Keyboard_ {
 
 
 Keyboard keyboard();
-renderKeyboard(SDL_Renderer* renderer, Keyboard keyboard);
+void renderKeyboard(SDL_Renderer* renderer, Keyboard keyboard);
 
 Grid grid();
-renderGrid(SDL_Renderer* renderer, Grid grid);
+void renderGrid(SDL_Renderer* renderer, Grid grid);
 
 #endif
