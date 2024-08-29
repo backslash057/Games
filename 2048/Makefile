@@ -1,8 +1,8 @@
 CC := g++
 CFLAGS := #-Wall -Wextra
-LDFLAGS := -lSDL2 -lm -lSDL2_gfx
+LDFLAGS := -lSDL2 -lSDL2_ttf
 EXE := bin/2048
-SRC :=  src/main.cpp  #src/SDL_gfxPrimitives.c
+SRC :=  src/main.cpp src/game.cpp src/render.cpp
 HEADERS := include
 
 compile:

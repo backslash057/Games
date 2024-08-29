@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "*.csv": "csv (semicolon)",
-        "stdlib.h": "c"
-    }
-}
