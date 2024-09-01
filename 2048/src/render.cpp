@@ -20,7 +20,7 @@ void Render::centerRect(SDL_Rect* rect, int parentWidth, int parentHeight) {
     rect->y = (parentHeight - rect->h) / 2;
 }
 
-void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, Game::Cell *cells, int gridSize) {
+void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<Game::Cell> cells) {
     int margin = 5;
     int width = (gridRect.w - margin*(gridSize+1)) / gridSize;
     
@@ -40,17 +40,16 @@ void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, Game::Cell *c
     SDL_Color textColor = {255, 255, 255, 255};
     TTF_Font* font = TTF_OpenFont("Ubuntu-Th.ttf", 134);
 
-    for(int i=0; i<gridSize * gridSize; i++) {
-        if(cells[i].value == 0) continue;
-
-
-        sprintf(buffer, "%d", cells[i].value);
+    for(Cell cell : cells) {
+        if(cell.value == 0) continue;
+        
+        sprintf(buffer, "%d", cell.value);
 
         SDL_Surface* textSurface = TTF_RenderText_Blended(font, buffer, textColor);
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
-        cellRect.x = round(cells[i].animX * (margin + width) + margin + gridRect.x);
-        cellRect.y = round(cells[i].animY * (margin + width) + margin + gridRect.y);
+        cellRect.x = round(cell.animX * (margin + width) + margin + gridRect.x);
+        cellRect.y = round(cell.animY * (margin + width) + margin + gridRect.y);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderFillRect(renderer, &cellRect);

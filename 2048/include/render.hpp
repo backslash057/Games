@@ -18,8 +18,7 @@ namespace Render {
 
 	void centerRect(SDL_Rect* rect, int parentWidth, int parentHeight);
 
-	void renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect,
-			Game::Cell *cells, int gridSize);
+	void renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<Game::Cell> cells);
 }
 
 #endif

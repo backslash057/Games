@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 
     int animSteps = 0;
     int gridSize = 5;
-    std::vectorCell cells[gridSize * gridSize];
+    std::vector<Cell> cells;
 
     Game::addRandomCell(cells);
     Game::addRandomCell(cells);

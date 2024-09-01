@@ -20,16 +20,16 @@ namespace Game {
 
     void initRng();
 
-    void update(Cell *cells, int gridSize, int* animSteps);
+    void update(std::vector<Game::Cell> cells, int* animSteps);
 
-    void addRandomCell(Cell *cells, int gridSize);
+    void addRandomCell(std::vector<Game::Cell> cells);
 
-    void shiftLeft(Cell *cells, int gridSize);
-    void shiftUp(Cell *cells, int gridSize);
-    void shiftRight(Cell *cells, int gridSize);
-    void shiftDown(Cell *cells, int gridSize);
+    void shiftLeft(std::vector<Game::Cell> cells);
+    void shiftUp(std::vector<Game::Cell> cells);
+    void shiftRight(std::vector<Game::Cell> cells);
+    void shiftDown(std::vector<Game::Cell> cells);
 
-    void stack(Cell *cells, int gridSize);
+    void stack(std::vector<Game::Cell> cells);
 }
 
 #endif

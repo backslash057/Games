@@ -5,7 +5,7 @@ void Game::initRng() {
 	srand(time(NULL));
 }
 
-void Game::update(Game::Cell *cells, int gridSize, int* animSteps) {
+void Game::update(std::vector<Cell>, int* animSteps) {
 	if(*animSteps != 0) {
 		for(int i=0; i<gridSize*gridSize; i++) {
 			if(cells[i].value == 0) continue;
