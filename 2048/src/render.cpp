@@ -1,17 +1,18 @@
 #include "render.hpp"
 
-std::unordered_map<int, Uint32> Render::colors = {
-        {2,     0xfce94f},
-        {4,     0x8ae234},
-        {8,     0xfcaf3e},
-        {16,    0x729fcf},
-        {32,    0xad7fa8},
-        {64,    0xc17d11},
-        {128,   0xef2929},
-        {256,   0xc4a000},
-        {1024,  0xce5c00},
-        {2048,  0x000000} 
+std::unordered_map<int, SDL_Color> Render::colors = {
+    {2,     {0xfc, 0xe9, 0x4f, 0xff}},  // Yellowish
+    {4,     {0x8a, 0xe2, 0x34, 0xff}},  // Greenish
+    {8,     {0xfc, 0xaf, 0x3e, 0xff}},  // Orange
+    {16,    {0x72, 0x9f, 0xcf, 0xff}},  // Light blue
+    {32,    {0xad, 0x7f, 0xa8, 0xff}},  // Light purple
+    {64,    {0xc1, 0x7d, 0x11, 0xff}},  // Brown
+    {128,   {0xef, 0x29, 0x29, 0xff}},  // Red
+    {256,   {0xc4, 0xa0, 0x00, 0xff}},  // Dark yellow
+    {1024,  {0xce, 0x5c, 0x00, 0xff}},  // Dark orange
+    {2048,  {0x00, 0x00, 0x00, 0xff}}   // Black
 };
+
 
 char* Render::buffer = (char*) malloc(sizeof(char) * 6);
 
