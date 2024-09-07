@@ -1,6 +1,6 @@
 #include "render.hpp"
 
-std::unordered_map<int, Uint32> Render::colors = {
+std::unordered_map<int, SDL_Color> Render::colors = {
         {2,     0xfce94f},
         {4,     0x8ae234},
         {8,     0xfcaf3e},
@@ -20,7 +20,7 @@ void Render::centerRect(SDL_Rect* rect, int parentWidth, int parentHeight) {
     rect->y = (parentHeight - rect->h) / 2;
 }
 
-void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<Game::Cell> cells) {
+void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<Game::Cell> cells, int gridSize) {
     int margin = 5;
     int width = (gridRect.w - margin*(gridSize+1)) / gridSize;
     
@@ -37,10 +37,10 @@ void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<G
         }
     }
 
-    SDL_Color textColor = {255, 255, 255, 255};
-    TTF_Font* font = TTF_OpenFont("Ubuntu-Th.ttf", 134);
+    SDL_Color textColor = {255, 255, 255, 255}, bg;
+    TTF_Font* font = TTF_OpenFont("Ubuntu-Th.ttf", 14);
 
-    for(Cell cell : cells) {
+    for(Game::Cell cell : cells) {
         if(cell.value == 0) continue;
         
         sprintf(buffer, "%d", cell.value);
@@ -51,7 +51,9 @@ void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<G
         cellRect.x = round(cell.animX * (margin + width) + margin + gridRect.x);
         cellRect.y = round(cell.animY * (margin + width) + margin + gridRect.y);
 
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+        bg = (SDL_Color) colors[cell.value];
+        SDL_SetRenderDrawColor(renderer, bd.r, bg.g, bg.b, 255);
         SDL_RenderFillRect(renderer, &cellRect);
         SDL_RenderCopy(renderer, texture, NULL, &cellRect);
 
