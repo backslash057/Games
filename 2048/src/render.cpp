@@ -13,6 +13,7 @@ std::unordered_map<int, SDL_Color> Render::colors = {
     {2048,  {0x00, 0x00, 0x00, 0xff}}   // Black
 };
 
+
 char* Render::buffer = (char*) malloc(sizeof(char) * 6);
 
 void Render::centerRect(SDL_Rect* rect, int parentWidth, int parentHeight) {
