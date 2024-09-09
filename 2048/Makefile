@@ -2,7 +2,7 @@ CC := g++
 CFLAGS := #-Wall -Wextra
 LDFLAGS := -lSDL2 -lSDL2_ttf
 EXE := bin/2048
-SRC :=  src/*.cpp #src/SDL_gfxPrimitives.c
+SRC :=  src/*.cpp
 HEADERS := include
 
 compile:
