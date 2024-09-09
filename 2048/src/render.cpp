@@ -1,16 +1,16 @@
 #include "render.hpp"
 
 std::unordered_map<int, SDL_Color> Render::colors = {
-        {2,     0xfce94f},
-        {4,     0x8ae234},
-        {8,     0xfcaf3e},
-        {16,    0x729fcf},
-        {32,    0xad7fa8},
-        {64,    0xc17d11},
-        {128,   0xef2929},
-        {256,   0xc4a000},
-        {1024,  0xce5c00},
-        {2048,  0x000000} 
+    {2,     {0xfc, 0xe9, 0x4f, 0xff}},  // Yellowish
+    {4,     {0x8a, 0xe2, 0x34, 0xff}},  // Greenish
+    {8,     {0xfc, 0xaf, 0x3e, 0xff}},  // Orange
+    {16,    {0x72, 0x9f, 0xcf, 0xff}},  // Light blue
+    {32,    {0xad, 0x7f, 0xa8, 0xff}},  // Light purple
+    {64,    {0xc1, 0x7d, 0x11, 0xff}},  // Brown
+    {128,   {0xef, 0x29, 0x29, 0xff}},  // Red
+    {256,   {0xc4, 0xa0, 0x00, 0xff}},  // Dark yellow
+    {1024,  {0xce, 0x5c, 0x00, 0xff}},  // Dark orange
+    {2048,  {0x00, 0x00, 0x00, 0xff}}   // Black
 };
 
 char* Render::buffer = (char*) malloc(sizeof(char) * 6);
@@ -22,9 +22,12 @@ void Render::centerRect(SDL_Rect* rect, int parentWidth, int parentHeight) {
 
 void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<Game::Cell> cells, int gridSize) {
     int margin = 5;
-    int width = (gridRect.w - margin*(gridSize+1)) / gridSize;
+    int width = ceil((gridRect.w - margin*(gridSize+1)) / gridSize);
+
+    SDL_SetRenderDrawColor(renderer, 186, 186, 186, 255);
+    SDL_RenderFillRect(renderer, &gridRect);
     
-    SDL_Rect cellRect;
+    SDL_Rect cellRect, textRect;
     cellRect.w = cellRect.h = width;
 
     for(int i=0; i<gridSize; i++) {
@@ -38,7 +41,7 @@ void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<G
     }
 
     SDL_Color textColor = {255, 255, 255, 255}, bg;
-    TTF_Font* font = TTF_OpenFont("Ubuntu-Th.ttf", 14);
+    TTF_Font* font = TTF_OpenFont("Ubuntu-M.ttf", 50);
 
     for(Game::Cell cell : cells) {
         if(cell.value == 0) continue;
@@ -47,15 +50,18 @@ void Render::renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<G
 
         SDL_Surface* textSurface = TTF_RenderText_Blended(font, buffer, textColor);
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        textRect = textSurface->clip_rect;
 
         cellRect.x = round(cell.animX * (margin + width) + margin + gridRect.x);
         cellRect.y = round(cell.animY * (margin + width) + margin + gridRect.y);
 
+        textRect.x = cellRect.x + (cellRect.w - textRect.w) / 2;
+        textRect.y = cellRect.y + (cellRect.h - textRect.h) / 2;
 
-        bg = (SDL_Color) colors[cell.value];
-        SDL_SetRenderDrawColor(renderer, bd.r, bg.g, bg.b, 255);
+        bg = colors[cell.value];
+        SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, 255);
         SDL_RenderFillRect(renderer, &cellRect);
-        SDL_RenderCopy(renderer, texture, NULL, &cellRect);
+        SDL_RenderCopy(renderer, texture, NULL, &textRect);
 
         SDL_FreeSurface(textSurface);
         SDL_DestroyTexture(texture);

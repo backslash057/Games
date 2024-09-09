@@ -26,11 +26,12 @@ int main(int argc, char* argv[]) {
     int windowWidth, windowHeight;
 
     int animSteps = 0;
-    int gridSize = 5;
-    std::vector<Cell> cells;
+    bool animationEnded;
+    int gridSize = 4;
+    std::vector<Game::Cell> cells;
 
-    Game::addRandomCell(cells);
-    Game::addRandomCell(cells);
+    Game::addRandomCell(cells, gridSize);
+    Game::addRandomCell(cells, gridSize);
 
     bool running = true;
     while(running) {
@@ -40,15 +41,19 @@ int main(int argc, char* argv[]) {
                 if(animSteps == 0) { // all animations are terminated
                     if(event.key.keysym.sym == SDLK_LEFT) {
                         Game::shiftLeft(cells, gridSize);
+                        animSteps = 10;
                     }
                     else if(event.key.keysym.sym == SDLK_UP) {
                         Game::shiftUp(cells, gridSize);
+                        animSteps = 10;
                     }
                     else if(event.key.keysym.sym == SDLK_RIGHT) {
                         Game::shiftRight(cells, gridSize);
+                        animSteps = 10;
                     }
                     else if(event.key.keysym.sym == SDLK_DOWN) {
                         Game::shiftDown(cells, gridSize);
+                        animSteps = 10;
                     }
                 }
             }
@@ -60,10 +65,17 @@ int main(int argc, char* argv[]) {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderClear(renderer);
 
-        SDL_SetRenderDrawColor(renderer, 186, 186, 186, 255);
-        SDL_RenderFillRect(renderer, &gridRect);
+        // SDL_SetRenderDrawColor(renderer, 186, 186, 186, 255);
+        // SDL_RenderFillRect(renderer, &gridRect);
 
-        Game::update(cells, gridSize, &animSteps);
+        animationEnded = (animSteps == 1);
+
+        Game::update(cells, animSteps);
+
+        if(animationEnded) {
+            stack(cells);
+            addRandomCell(cells, gridSize);
+        }
 
         Render::renderGrid(renderer, gridRect, cells, gridSize);
 

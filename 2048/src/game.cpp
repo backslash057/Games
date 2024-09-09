@@ -5,104 +5,176 @@ void Game::initRng() {
 	srand(time(NULL));
 }
 
-void Game::update(std::vector<Cell>, int* animSteps) {
-	if(*animSteps != 0) {
-		for(int i=0; i<gridSize*gridSize; i++) {
-			if(cells[i].value == 0) continue;
+void Game::update(std::vector<Cell>& cells, int& animSteps) {
+	if(animSteps != 0) {
+		for(auto& cell : cells) {
+			if(cell.value == 0) continue;
 
-	        if(*animSteps == 1){
-	            cells[i].animX = cells[i].x;
-	            cells[i].animY = cells[i].y;
+	        if(animSteps == 1){
+	            cell.animX = cell.x;
+	            cell.animY = cell.y;
 	        }
 	        else {
-	            float stepX = (cells[i].x - cells[i].animX) / *animSteps;
-	            float stepY = (cells[i].y - cells[i].animY) / *animSteps;
+	            float stepX = (cell.x - cell.animX) / animSteps;
+	            float stepY = (cell.y - cell.animY) / animSteps;
 
-	            cells[i].animX += stepX;
-	            cells[i].animY += stepY;
+	            cell.animX += stepX;
+	            cell.animY += stepY;
 	        }
 		}
 
-		*animSteps = *animSteps - 1;
-		if(animSteps == 0) {
-            std::cout << "fin d'animation" << std::endl;
-            // the animation has eneded, the values should be stacked
-            // call the function that stack the element values
-            // stack(cells);
-        }
+		animSteps--;
 	}
 }
 
-void Game::addRandomCell(Cell *cells, int gridSize) {
-	std::vector<int> options;
-
-	for(int i=0; i<gridSize*gridSize; i++) {
-		if(cells[i].value == 0) {
-			options.push_back(i);
-		}
-	}
+void Game::addRandomCell(std::vector<Cell>& cells, int gridSize) {
+	if(cells.size() == gridSize * gridSize) return;
 	
-	int index = options.at(rand()%options.size());
+	int index;
+	bool contains;
 
-	std::cout << "choosen: " << index << std::endl;
-	if(options.size() != 0) {
-		cells[index].value = 2;
-		cells[index].x = cells[index].animX = index%gridSize;
-		cells[index].y = cells[index].animY = index/gridSize;
-	}
+	do {
+		index = rand() % (gridSize*gridSize);
+		
+		contains = false;
+		for(auto cell : cells) {
+			if(cell.x + gridSize * cell.y == index) contains = true;
+		}
+	} while(contains);
 
+	Cell cell;
+	cell.value = 2;
+	cell.x = cell.animX = index%gridSize;
+	cell.y = cell.animY = index/gridSize;
+
+	cells.push_back(cell);
 }
 
-void Game::shiftLeft(Cell *cells, int gridSize) {
-	std::vector<i> lines[gridSize];
+bool Game::lessXComparator(Cell* cell1, Cell* cell2) {
+	return cell1->x < cell2->x;
+}
+
+bool Game::lessYComparator(Cell* cell1, Cell* cell2) {
+	return cell1->y < cell2->y;
+}
+
+void Game::shiftUp(std::vector<Cell>& cells, const int gridSize) {
+	std::vector<Cell*> columns[gridSize];
+
+	for(auto& cell : cells) columns[cell.x].push_back(&cell);
+	for(int i=0; i<gridSize; i++) std::sort(columns[i].begin(), columns[i].end(), lessYComparator);
 
 
-	for(int i=0; i<gridSize * gridSize; i++) {
-		if(cells[i].value != 0) {
-			lines[cells[i].y].push_back(i);
-		}
-	}
+	for(int i=0; i<gridSize; i++){
+		int index=0, j=0;
 
-	// sort the different lines here cells are stored in a list
-	// with array representation, cells x indices are already sorted
+		while(j < columns[i].size()) {
+			columns[i][j]->y = index;
 
 
-	int ptr;
-	int *previous;
-	Cell temp;
-	for(int i=0; i<gridSize; i++) {
-		ptr = 0;
-		previous = NULL;
-
-		for(int j=0; j<gridSize; j++) {
-			if(cells[i*gridSize + j].value == 0) {
-				temp = cells[i*gridSize + ptr];
-
-				lines[i].erase(0);
-				ptr++;
+			if(j < columns[i].size()-1 && columns[i][j+1]->value == columns[i][j]->value) {
+				columns[i][j+1]->y = index;
+				j++;
+				
 			}
+			j++;
+			index++;
+		}
+	}
+}
+
+void Game::shiftLeft(std::vector<Cell>& cells, const int gridSize) {
+	std::vector<Cell*> rows[gridSize];
+
+	for(auto& cell : cells) rows[cell.y].push_back(&cell);
+	for(int i=0; i<gridSize; i++) std::sort(rows[i].begin(), rows[i].end(), lessXComparator);
+
+	for(int i=0; i<gridSize; i++){
+		int index=0;
+		int j=0;
+
+		while(j < rows[i].size()) {
+			rows[i][j]->x = index;
+
+			if(j < rows[i].size()-1 && rows[i][j+1]->value == rows[i][j]->value){
+				rows[i][j+1]->x = index;
+				j++;
+			}
+
+			j++;
+			index++;
+		}
+	}
+}
+
+void Game::shiftRight(std::vector<Cell>& cells, const int gridSize) {
+	std::vector<Cell*> rows[gridSize];
+
+	for(auto& cell : cells) rows[cell.y].push_back(&cell);
+	for(int i=0; i<gridSize; i++) std::sort(rows[i].begin(), rows[i].end(), lessXComparator);
+
+	for(int i=0; i<gridSize; i++){
+		int index=0;
+		int j=0;
+
+		while(j < rows[i].size()) {
+			rows[i][rows[i].size()-j-1]->x = gridSize - index - 1;
+
+			if(j < rows[i].size()-1 &&
+				rows[i][rows[i].size()-j-2]->value == rows[i][rows[i].size()-j-1]->value){
+
+				rows[i][rows[i].size()-j-2]->x = gridSize - index - 1;
+				j++;
+			}
+
+			j++;
+			index++;
+		}
+	}
+}
+
+
+void Game::shiftDown(std::vector<Cell>& cells, const int gridSize) {
+	std::vector<Cell*> columns[gridSize];
+
+	for(auto& cell : cells) columns[cell.x].push_back(&cell);
+	for(int i=0; i<gridSize; i++) std::sort(columns[i].begin(), columns[i].end(), lessYComparator);
+
+	for(int i=0; i<gridSize; i++){
+		int index=0, j=0;
+
+		while(j < columns[i].size()) {
+			columns[i][columns[i].size()-j-1]->y = gridSize - index - 1;
+
+			if(j < columns[i].size()-1 &&
+				columns[i][columns[i].size()-j-2]->value == columns[i][columns[i].size()-j-1]->value) {
+				columns[i][columns[i].size()-j-2]->y = gridSize - index - 1;
+				j++;
+			}
+
+			j++;
+			index++;
+		}
+	}
+}
+
+void Game::stack(std::vector<Cell>& cells) {
+	int i=0, j;
+
+	while(true) {
+		if(i >= cells.size()) break;
+		j=0;
+		while(true) {
+			if(j>= cells.size()) break;
+			if(i != j && cells[i].x == cells[j].x && cells[i].y == cells[j].y) {
+				cells.erase(cells.begin() + j);
+				cells[i].value *= 2;
+			}
+			j++;
 		}
 
-		// std::cout << lines[i].size() << std::endl;
+		i++;
 	}
 
-	// recuperer toute les tuiles pout chaque ligne
-	// classer les tuiles de chaque ligne en fonction de leur position en x
-	// definir un indice et parcourir les tuiles pour 
-}
-
-void Game::shiftUp(Cell *cells, int gridSize) {
-
-}
-
-void Game::shiftRight(Cell *cells, int gridSize) {
-
-}
-
-void Game::shiftDown(Cell *cells, int gridSize) {
-
-}
-
-void Game::stack(Cell *cells, int gridSize) {
-
+	std::cout << cells.size() << std::endl;
 }

@@ -10,15 +10,16 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "game.hpp"
+#include "SDL_gfxPrimitives.h"
 
 
 namespace Render {
 	extern char *buffer;
-	extern std::unordered_map<int, Uint32> colors;
+	extern std::unordered_map<int, SDL_Color> colors;
 
 	void centerRect(SDL_Rect* rect, int parentWidth, int parentHeight);
 
-	void renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<Game::Cell> cells);
+	void renderGrid(SDL_Renderer* renderer, SDL_Rect gridRect, std::vector<Game::Cell> cells, int gridSize);
 }
 
 #endif

@@ -6,6 +6,7 @@
 #include <array>
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
 
 namespace Game {
     struct Cell{
@@ -20,16 +21,19 @@ namespace Game {
 
     void initRng();
 
-    void update(std::vector<Game::Cell> cells, int* animSteps);
+    void update(std::vector<Cell>& cells, int& animSteps);
 
-    void addRandomCell(std::vector<Game::Cell> cells);
+    void addRandomCell(std::vector<Cell>& cells, int gridSize);
 
-    void shiftLeft(std::vector<Game::Cell> cells);
-    void shiftUp(std::vector<Game::Cell> cells);
-    void shiftRight(std::vector<Game::Cell> cells);
-    void shiftDown(std::vector<Game::Cell> cells);
+    bool lessXComparator(Cell* cell1, Cell* cell2);
+    bool lessYComparator(Cell* cell1, Cell* cell2);
 
-    void stack(std::vector<Game::Cell> cells);
+    void shiftLeft(std::vector<Cell>& cells, const int gridSize);
+    void shiftUp(std::vector<Cell>& cells, const int gridSize);
+    void shiftRight(std::vector<Cell>& cells, const int gridSize);
+    void shiftDown(std::vector<Cell>& cells, const int gridSize);
+
+    void stack(std::vector<Cell>& cells);
 }
 
 #endif
