@@ -1,8 +1,8 @@
 CC := gcc
 CFLAGS := #-Wall -Wextra
-LDFLAGS := -lSDL2 -lm
+LDFLAGS := -lSDL2 -lSDL2_image -lm
 EXE := bin/tetris
-SRC :=  src/main.c  #src/SDL_gfxPrimitives.c
+SRC :=  src/*.c
 HEADERS := include
 
 compile:
