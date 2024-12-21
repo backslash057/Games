@@ -5,8 +5,15 @@
 
 #include <stdio.h>
 
+typedef struct {
 
-SDL_Texture* loadPattern(SDL_Renderer* renderer, SDL_Surface* pattern, int w, int h, float scale);
+} Button;
+
+typedef struct {
+    Button buttons[3];
+} Menu;
+
+SDL_Texture* loadBackgroundPattern(SDL_Renderer* renderer, int w, int h, float ratio);
 
 void updateBackgroundOffset(SDL_Point* offset, SDL_Point speed);
 

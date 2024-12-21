@@ -1,0 +1,23 @@
+recadrer les images de victoires pour chaque joueur pour pouvoir les coller directement a droite du renderer sans redimensionnement
+
+boucle principale du jeu:
+
+	capture de l'etat du clavier
+	lecture des evenements:
+		verification des touches
+			- 4 touches de mouvement
+			- 4 touches d'action
+			- Start | Pause
+		verification de sortie
+
+	mise a jour des animations des sprites de la scene
+
+Displays:
+	Main menu (PLay, Settings, Quit)
+	Play(1 vs 1, 3 vs 3, Multiplayer 1 vs 1, Multiplayer 3 vs 3)
+	Playing(render the game)
+	Settings(... including keyboard, joystick, sound)
+	Quit()
+
+class Menu:
+	Button* button

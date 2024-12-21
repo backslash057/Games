@@ -1,28 +1,27 @@
 #include "render.h"
 
-SDL_Texture* loadPattern(SDL_Renderer* renderer, SDL_Surface* pattern, int w, int h, float scale) {
+SDL_Texture* loadPattern(SDL_Renderer* renderer, int w, int h, float ratio) {
 	SDL_Surface* background = SDL_CreateRGBSurface(
-		0, w*scale, h*scale, 32,
+		0, w, h, 32,
 		0xff000000, 0x00ff0000,
 		0x0000ff00, 0x000000ff
 	);
 
-	SDL_Rect rect = {0, 0, pattern->clip_rect.w, pattern->clip_rect.h};
-	SDL_Rect dstRect;
+	SDL_Rect dstRect = {0, 0, pattern->clip_rect.w*ratio, pattern->clip_rect.h*ratio};
+	SDL_Point margin = {50*ratio, 50*ratio};
 
-	SDL_Point margin = {50, 50};
+	int rows = h / (dstRect.h + margin.y) + 1;
+	int cols = w / (dstRect.w + margin.x) + 1;
 
-	int rows = h / (rect.h + margin.y) + 2;
-	int cols = w / (rect.w + margin.x) + 2;
 
-	for(int i=-2; i<rows; i++) {
-		for(int j=0; j<cols; j++) {
-			rect.x = j*(rect.h + margin.y);
-			rect.y = i*(rect.w + margin.x);
+	for(int i=-1; i<rows; i++) {
+		for(int j=0; j<cols+1; j++) {
+			dstRect.w = pattern->clip_rect.w * ratio;
+			dstRect.h = pattern->clip_rect.h * ratio;
+			dstRect.x = j*(dstRect.h + margin.y);
+			dstRect.y = i*(dstRect.w + margin.x);
 
-			dstRect = rect;
-
-			SDL_UpperBlit(pattern, NULL, background, &dstRect);
+			SDL_UpperBlitScaled(pattern, NULL, background, &dstRect);
 		}
 	}
 	
@@ -39,3 +38,4 @@ void updateBackgroundOffset(SDL_Point* offset, SDL_Point speed) {
 void renderBackgroundTexture(SDL_Renderer* renderer, SDL_Texture* backgroundTexture, SDL_Point offset) {
 	SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
 }
+
